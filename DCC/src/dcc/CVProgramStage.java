@@ -29,23 +29,20 @@ import javafx.stage.WindowEvent;
  */
 public class CVProgramStage extends Stage {
     
-    private TextField cvNumField;
-    private TextField cvValueField;
+    private final TextField addressField;
+    private final TextField cvNumField;
+    private final TextField cvValueField;
     
     private CVProgramPacket packet;
-    private Button programButton;
-    private Button cancelButton;
-    private Loco loco;
+    private final Button programButton;
+    private final Button cancelButton;
+    private final Loco loco;
 
     public CVProgramStage(Loco loco) {
         this.loco = loco;
         setTitle("Program Raw CV");
-        setOnShown(new EventHandler<WindowEvent>() {
-
-            @Override
-            public void handle(WindowEvent event) {
-                DCCUtils.centre(CVProgramStage.this);
-            }
+        setOnShown((WindowEvent event) -> {
+            DCCUtils.centre(CVProgramStage.this);
         });
         VBox mainPane = new VBox(20);
         mainPane.setAlignment(Pos.CENTER);
@@ -58,12 +55,12 @@ public class CVProgramStage extends Stage {
         
         Label addressLabel = new Label("Address");
         addressLabel.getStyleClass().add("addressLabel");
-        cvNumField = new TextField();
-        cvNumField.setText(Integer.toString(loco.addressProperty().get().getAddress()));
-        cvNumField.setDisable(true);
-        cvNumField.getStyleClass().add("addressField");
+        addressField = new TextField();
+        addressField.setText(Integer.toString(loco.addressProperty().get().getAddress()));
+        addressField.setDisable(true);
+        addressField.getStyleClass().add("addressField");
         fieldPane.add(addressLabel, 0, 0);
-        fieldPane.add(cvNumField, 1, 0);
+        fieldPane.add(addressField, 1, 0);
         
         Label cvNumLabel = new Label("CV Number");
         cvNumLabel.getStyleClass().add("addressLabel");

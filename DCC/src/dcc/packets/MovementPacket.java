@@ -35,6 +35,30 @@ public class MovementPacket {
         return new MovementPacket(loco.directionProperty().get(), loco.speedModeProperty().get(), loco.speedProperty().get(), loco.addressProperty().get(), loco.emergencyStoppedProperty().get(), loco.stoppedProperty().get());
     }
 
+    public DCCUtils.Direction getDirection() {
+        return direction;
+    }
+
+    public DCCUtils.SpeedMode getSpeedMode() {
+        return speedMode;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public DCCAddress getAddress() {
+        return address;
+    }
+
+    public boolean isEmergencyStop() {
+        return emergencyStop;
+    }
+
+    public boolean isStop() {
+        return stop;
+    }
+    
     public String toString() {
         String ret = address + ",";
         if (emergencyStop) {

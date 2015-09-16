@@ -5,9 +5,7 @@
  */
 package dcc;
 
-import javafx.scene.control.Dialog;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
 /**
  *
@@ -35,6 +33,19 @@ public class DCCUtils {
     private static Stage primaryStage = null;
 
     private DCCUtils() {
+    }
+    
+    public static int getSpeedForMode(int rawSpeed, SpeedMode mode) {
+        if(mode==SpeedMode.SPEED_128) {
+            return rawSpeed;
+        }
+        if(mode==SpeedMode.SPEED_28) {
+            return (int)(rawSpeed*(28.0/128)+1);
+        }
+        if(mode==SpeedMode.SPEED_14) {
+            return (int)(rawSpeed*(14.0/128)+1);
+        }
+        return 0;
     }
 
     public static boolean isValidDCCAddress(int address) {

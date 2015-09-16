@@ -36,4 +36,9 @@ public class DebugCommunicator implements DCCCommunicator {
         System.out.println(packet.toString());
     }
     
+    @Override
+    public void start() {
+        //Nothing needed here.
+    }
+    
 }

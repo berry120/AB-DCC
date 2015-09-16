@@ -34,6 +34,14 @@ public class FunctionPacket {
     public Set<Integer> getFunctionsOn() {
         return functionsOn;
     }
+    
+    public int getBitMask() {
+        int ret = 0;
+        for(int func : functionsOn) {
+            ret |= (1<<func);
+        }
+        return ret;
+    }
 
     public String toString() {
         String ret = address + "," + "Functions:";

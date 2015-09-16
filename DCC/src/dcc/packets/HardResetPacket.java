@@ -22,5 +22,9 @@ public class HardResetPacket {
     public String toString() {
         return address+",reset";
     }
+
+    public DCCAddress getAddress() {
+        return address;
+    }
     
 }

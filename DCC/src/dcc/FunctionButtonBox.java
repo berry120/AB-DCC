@@ -9,7 +9,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
 
@@ -20,7 +19,7 @@ import javafx.scene.layout.VBox;
 public class FunctionButtonBox extends VBox {
 
     private static final int MAX_FUNCTIONS = 28;
-    private ObjectProperty<Loco> locoProperty;
+    private final ObjectProperty<Loco> locoProperty;
     private int numButtons;
 
     public FunctionButtonBox(Loco loco) {

@@ -24,4 +24,6 @@ public interface DCCCommunicator {
     
     void programCV(CVProgramPacket packet);
     
+    void start();
+    
 }

@@ -9,7 +9,6 @@ import dcc.packets.CVProgramPacket;
 import dcc.packets.FunctionPacket;
 import dcc.packets.HardResetPacket;
 import dcc.packets.MovementPacket;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -26,7 +25,8 @@ public class LocoController {
     private ObservableList<Loco> locos;
 
     public LocoController() {
-        comm = new DebugCommunicator();
+        comm = new HardwareCommunicator("COM8");
+        comm.start();
         locos = FXCollections.observableArrayList();
     }
 
@@ -47,24 +47,17 @@ public class LocoController {
             comm.setMovement(MovementPacket.fromCurrentLocoState(loco));
         });
         loco.addressProperty().addListener((ObservableValue<? extends DCCAddress> observable, DCCAddress oldAddress, DCCAddress newValue) -> {
+            comm.programCV(new CVProgramPacket(oldAddress, 3, newValue.getAddress()));
             comm.reset(new HardResetPacket(oldAddress));
         });
-        loco.getFunctionsOn().addListener(new SetChangeListener<Integer>() {
-
-            @Override
-            public void onChanged(SetChangeListener.Change<? extends Integer> change) {
-                comm.setFunction(FunctionPacket.fromLoco(loco));
-            }
+        loco.getFunctionsOn().addListener((SetChangeListener.Change<? extends Integer> change) -> {
+            comm.setFunction(FunctionPacket.fromLoco(loco));
         });
-        loco.getCVQueue().addListener(new ListChangeListener<CVProgramPacket>() {
-
-            @Override
-            public void onChanged(ListChangeListener.Change<? extends CVProgramPacket> c) {
-                while (c.next()) {
-                    for (CVProgramPacket packet : c.getAddedSubList()) {
-                        System.out.println(packet);
-                        loco.getCVQueue().remove(packet);
-                    }
+        loco.getCVQueue().addListener((ListChangeListener.Change<? extends CVProgramPacket> c) -> {
+            while (c.next()) {
+                for (CVProgramPacket packet : c.getAddedSubList()) {
+                    comm.programCV(packet);
+                    loco.getCVQueue().remove(packet);
                 }
             }
         });

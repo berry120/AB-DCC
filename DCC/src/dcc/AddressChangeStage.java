@@ -35,9 +35,9 @@ public class AddressChangeStage extends Stage {
 
     private List<CVProgramPacket> packets;
     private DCCAddress newAddress;
-    private Button programButton;
-    private Button cancelButton;
-    private Loco loco;
+    private final Button programButton;
+    private final Button cancelButton;
+    private final Loco loco;
 
     public AddressChangeStage(Loco loco) {
         this.loco = loco;
