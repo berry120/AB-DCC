@@ -49,6 +49,8 @@ public class LocoController {
         loco.addressProperty().addListener((ObservableValue<? extends DCCAddress> observable, DCCAddress oldAddress, DCCAddress newValue) -> {
             comm.programCV(new CVProgramPacket(oldAddress, 3, newValue.getAddress()));
             comm.reset(new HardResetPacket(oldAddress));
+            comm.setMovement(MovementPacket.fromCurrentLocoState(loco));
+            comm.setFunction(FunctionPacket.fromLoco(loco));
         });
         loco.getFunctionsOn().addListener((SetChangeListener.Change<? extends Integer> change) -> {
             comm.setFunction(FunctionPacket.fromLoco(loco));
@@ -61,6 +63,7 @@ public class LocoController {
                 }
             }
         });
+        comm.setFunction(FunctionPacket.fromLoco(loco));
         locos.add(loco);
     }
 

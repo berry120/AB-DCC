@@ -6,6 +6,7 @@
 package dcc;
 
 import dcc.packets.CVProgramPacket;
+import dcc.packets.Packet;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.value.ObservableValue;

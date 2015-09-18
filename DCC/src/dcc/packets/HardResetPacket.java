@@ -11,20 +11,20 @@ import dcc.DCCAddress;
  *
  * @author Michael
  */
-public class HardResetPacket {
-    
+public class HardResetPacket implements Packet {
+
     private DCCAddress address;
-    
+
     public HardResetPacket(DCCAddress address) {
         this.address = address;
     }
-    
+
     public String toString() {
-        return address+",reset";
+        return address + ",reset";
     }
 
     public DCCAddress getAddress() {
         return address;
     }
-    
+
 }

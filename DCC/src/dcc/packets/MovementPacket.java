@@ -13,7 +13,7 @@ import dcc.Loco;
  *
  * @author Michael
  */
-public class MovementPacket {
+public class MovementPacket implements Packet {
 
     private DCCUtils.Direction direction;
     private DCCUtils.SpeedMode speedMode;
@@ -22,7 +22,7 @@ public class MovementPacket {
     private boolean emergencyStop;
     private boolean stop;
 
-    private MovementPacket(DCCUtils.Direction direction, DCCUtils.SpeedMode speedMode, int speed, DCCAddress address, boolean emergencyStop, boolean stop) {
+    public MovementPacket(DCCUtils.Direction direction, DCCUtils.SpeedMode speedMode, int speed, DCCAddress address, boolean emergencyStop, boolean stop) {
         this.direction = direction;
         this.speedMode = speedMode;
         this.speed = speed;

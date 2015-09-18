@@ -35,12 +35,8 @@ public class NewLocoStage extends Stage {
 
     public NewLocoStage() {
         setTitle("New Loco");
-        setOnShown(new EventHandler<WindowEvent>() {
-
-            @Override
-            public void handle(WindowEvent event) {
-                DCCUtils.centre(NewLocoStage.this);
-            }
+        setOnShown((WindowEvent event) -> {
+            DCCUtils.centre(NewLocoStage.this);
         });
         addressProperty = new SimpleObjectProperty<>();
         VBox mainPane = new VBox(20);

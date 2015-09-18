@@ -11,7 +11,7 @@ import dcc.DCCAddress;
  *
  * @author Michael
  */
-public class CVProgramPacket {
+public class CVProgramPacket implements Packet {
 
     private DCCAddress address;
     private int cvAddress;

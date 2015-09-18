@@ -13,7 +13,7 @@ import java.util.Set;
  *
  * @author Michael
  */
-public class FunctionPacket {
+public class FunctionPacket implements Packet {
 
     private DCCAddress address;
     private Set<Integer> functionsOn;

@@ -25,14 +25,14 @@ import javafx.collections.ObservableSet;
  */
 public class Loco {
     
-    private IntegerProperty speed;
-    private BooleanProperty stopped;
-    private BooleanProperty emergencyStopped;
-    private ObjectProperty<Direction> direction;
-    private ObjectProperty<DCCUtils.SpeedMode> speedMode;
-    private ObjectProperty<DCCAddress> address;
-    private ObservableSet<Integer> functionsOn;
-    private ObservableList<CVProgramPacket> cvQueue;
+    private final IntegerProperty speed;
+    private final BooleanProperty stopped;
+    private final BooleanProperty emergencyStopped;
+    private final ObjectProperty<Direction> direction;
+    private final ObjectProperty<DCCUtils.SpeedMode> speedMode;
+    private final ObjectProperty<DCCAddress> address;
+    private final ObservableSet<Integer> functionsOn;
+    private final ObservableList<CVProgramPacket> cvQueue;
     
     public Loco(DCCAddress defaultAddress) {
         functionsOn = FXCollections.observableSet(new HashSet<>());
