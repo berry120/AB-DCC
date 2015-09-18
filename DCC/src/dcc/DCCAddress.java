@@ -6,6 +6,7 @@
 package dcc;
 
 import dcc.DCCUtils.AddressType;
+import java.util.Objects;
 
 /**
  *
@@ -17,16 +18,16 @@ public class DCCAddress {
     private AddressType type;
 
     public DCCAddress(int address, AddressType type) {
-        if(address<1) {
-            throw new IllegalArgumentException("Address must be >0");
+        if (address < 0) {
+            throw new IllegalArgumentException("Address must be >=0");
         }
-        if(address<1) {
-            throw new IllegalArgumentException("Address must be >0");
+        if (address < 1) {
+            throw new IllegalArgumentException("Address must be >=0");
         }
         this.address = address;
         this.type = type;
     }
-    
+
     public static DCCAddress fromNum(int addressNum) {
         AddressType type;
         if (DCCUtils.isValidDCCShortAddress(addressNum)) {
@@ -44,13 +45,57 @@ public class DCCAddress {
     public AddressType getType() {
         return type;
     }
+    
+    public boolean isBroadcast() {
+        return address==0;
+    }
+
+    /**
+     * Return the address type as an integer, where 1 indicates a long address
+     * type and 0 represents a short address type. (This is useful for some
+     * hardware implementations.)
+     *
+     * @return
+     */
+    public int getAddressTypeAsInt() {
+        if (type == AddressType.LONG) {
+            return 1;
+        }
+        return 0;
+    }
 
     public String toString() {
         String ret = Integer.toString(address);
-//        if (type == AddressType.LONG && address < 128) {
-//            ret += "(L)";
-//        }
+        if (type == AddressType.LONG) {
+            ret += "(L)";
+        }
         return ret;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 89 * hash + this.address;
+        hash = 89 * hash + Objects.hashCode(this.type);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final DCCAddress other = (DCCAddress) obj;
+        if (this.address != other.address) {
+            return false;
+        }
+        if (this.type != other.type) {
+            return false;
+        }
+        return true;
     }
 
 }

@@ -22,6 +22,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -40,15 +41,12 @@ public class AddressChangeStage extends Stage {
     private final Loco loco;
 
     public AddressChangeStage(Loco loco) {
+        initModality(Modality.APPLICATION_MODAL);
         this.loco = loco;
         packets = new ArrayList<>();
         setTitle("Change address");
-        setOnShown(new EventHandler<WindowEvent>() {
-
-            @Override
-            public void handle(WindowEvent event) {
-                DCCUtils.centre(AddressChangeStage.this);
-            }
+        setOnShown((WindowEvent event) -> {
+            DCCUtils.centre(AddressChangeStage.this);
         });
         VBox mainPane = new VBox(20);
         mainPane.setAlignment(Pos.CENTER);
@@ -89,7 +87,7 @@ public class AddressChangeStage extends Stage {
             DCCAddress address = loco.addressProperty().get();
             int cvVal = Integer.parseInt(newAddressField.getText());
             if (DCCUtils.isValidDCCShortAddress(cvVal)) {
-                packets.add(new CVProgramPacket(address, 3, cvVal));
+                packets.add(new CVProgramPacket(address, 1, cvVal));
             } else {
                 int cv18 = cvVal & 0xFF; //Lower byte
                 int cv17 = (cvVal >> 8) & 0xFF; //Upper byte
@@ -114,13 +112,9 @@ public class AddressChangeStage extends Stage {
         bottomButtons.getChildren().addAll(programButton, cancelButton);
         mainPane.getChildren().addAll(fieldPane, bottomButtons);
         Scene scene = new Scene(mainPane);
-        scene.addEventHandler(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
-
-            @Override
-            public void handle(KeyEvent t) {
-                if (t.getCode() == KeyCode.ESCAPE) {
-                    ((Stage) scene.getWindow()).hide();;
-                }
+        scene.addEventHandler(KeyEvent.KEY_PRESSED, (KeyEvent t) -> {
+            if (t.getCode() == KeyCode.ESCAPE) {
+                ((Stage) scene.getWindow()).hide();
             }
         });
         scene.getStylesheets().add(DCCUtils.STYLESHEET);

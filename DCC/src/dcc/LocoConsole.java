@@ -60,20 +60,16 @@ public class LocoConsole extends VBox implements ConsoleItem {
         VBox.setMargin(headerBox, new Insets(5, 5, 0, 5));
         headerBox.setAlignment(Pos.TOP_CENTER);
         addressButton = new Button(loco.addressProperty().asString().get());
-        addressButton.setOnAction(new EventHandler<ActionEvent>() {
-
-            @Override
-            public void handle(ActionEvent event) {
-                AddressChangeStage acs = new AddressChangeStage(loco);
-                acs.showAndWait();
-                List<CVProgramPacket> packets = acs.getPackets();
-                for(CVProgramPacket packet : packets) {
-                    loco.getCVQueue().add(packet);                    
-                }
-                DCCAddress newAddress = acs.getNewAddress();
-                if(newAddress!=null) {
-                    loco.addressProperty().set(newAddress);
-                }
+        addressButton.setOnAction((ActionEvent event) -> {
+            AddressChangeStage acs = new AddressChangeStage(loco);
+            acs.showAndWait();
+            List<CVProgramPacket> packets = acs.getPackets();
+            for(CVProgramPacket packet : packets) {
+                loco.getCVQueue().add(packet);
+            }
+            DCCAddress newAddress = acs.getNewAddress();
+            if(newAddress!=null) {
+                loco.addressProperty().set(newAddress);
             }
         });
         addressButton.getStyleClass().add("addressButton");

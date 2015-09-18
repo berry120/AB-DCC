@@ -5,13 +5,8 @@ import dcc.packets.CVProgramPacket;
 import dcc.packets.FunctionPacket;
 import dcc.packets.HardResetPacket;
 import dcc.packets.MovementPacket;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 
@@ -21,39 +16,15 @@ import jssc.SerialPortException;
  */
 public class HardwareCommunicator implements DCCCommunicator {
 
-    private volatile Map<DCCAddress, String> movementCommands;
-    private Map<DCCAddress, String> functionCommands;
-    private final BlockingQueue<String> queue = new ArrayBlockingQueue<>(128);
+    private final Map<DCCAddress, CommandContainer> commands = new HashMap<>();
     private volatile SerialPort serialPort;
     private Thread workerThread;
-    private Thread queueSubmitThread;
 
     public HardwareCommunicator(String portName) {
-        movementCommands = Collections.synchronizedMap(new HashMap<>());
-        functionCommands = Collections.synchronizedMap(new HashMap<>());
         serialPort = new SerialPort(portName);
     }
 
     public void start() {
-        queueSubmitThread = new Thread() {
-            public void run() {
-                try {
-                    while(true) {
-                        Set<String> commands = new HashSet<>();
-                        commands.addAll(movementCommands.values());
-                        commands.addAll(functionCommands.values());
-                        for(String cmd : commands) {
-                            queue.add(cmd);
-                            Thread.sleep(50);
-                        }
-                    }
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        };
-        queueSubmitThread.setDaemon(true);
-        
         workerThread = new Thread() {
             public void run() {
                 try {
@@ -65,12 +36,20 @@ public class HardwareCommunicator implements DCCCommunicator {
                 } catch (SerialPortException ex) {
                     ex.printStackTrace();
                 }
-                queueSubmitThread.start();
                 try {
                     while (true) {
-                        String command = queue.take();
-                        System.out.println(command);
-                        serialPort.writeString(command);
+                        synchronized (commands) {
+                            if (!commands.isEmpty()) {
+                                DCCAddress addr = commands.keySet().iterator().next();
+                                CommandContainer comms = commands.get(addr);
+                                for (String command : comms.getCommands()) {
+                                    serialPort.writeString(command);
+                                    System.out.println(command);
+                                }
+                                commands.remove(addr);
+                            }
+                        }
+                        Thread.sleep(10);
                     }
                 } catch (InterruptedException | SerialPortException ex) {
                     ex.printStackTrace();
@@ -92,24 +71,53 @@ public class HardwareCommunicator implements DCCCommunicator {
 
     @Override
     public void setMovement(MovementPacket packet) {
-        movementCommands.put(packet.getAddress(), movementPacketToCommand(packet));
+        synchronized (commands) {
+            CommandContainer container = commands.get(packet.getAddress());
+            if (container == null) {
+                container = new CommandContainer();
+            }
+            container.setMovementCommand(movementPacketToCommand(packet));
+            commands.put(packet.getAddress(), container);
+        }
     }
 
     @Override
     public void setFunction(FunctionPacket packet) {
-        functionCommands.put(packet.getAddress(), functionPacketToCommand(packet));
+        synchronized (commands) {
+            CommandContainer container = commands.get(packet.getAddress());
+            if (container == null) {
+                container = new CommandContainer();
+            }
+            container.setFunctionCommand(functionPacketToCommand(packet));
+            commands.put(packet.getAddress(), container);
+        }
     }
 
     @Override
     public void reset(HardResetPacket packet) {
-        movementCommands.remove(packet.getAddress());
-        functionCommands.remove(packet.getAddress());
-        queue.add(resetPacketToCommand(packet));
+        synchronized (commands) {
+            if (packet.getAddress().isBroadcast()) {
+                commands.clear();
+            }
+            CommandContainer container = commands.get(packet.getAddress());
+            if (container == null) {
+                container = new CommandContainer();
+            }
+            container.setResetCommand(resetPacketToCommand(packet));
+            commands.put(packet.getAddress(), container);
+        }
     }
 
     @Override
     public void programCV(CVProgramPacket packet) {
-        queue.add(programCVPacketToCommand(packet));
+        synchronized (commands) {
+            CommandContainer container = commands.get(packet.getAddress());
+            if (container == null) {
+                container = new CommandContainer();
+            }
+            container.setProgramCommand(programCVPacketToCommand(packet));
+            commands.put(packet.getAddress(), container);
+        }
     }
 
     private String movementPacketToCommand(MovementPacket packet) {
@@ -126,6 +134,8 @@ public class HardwareCommunicator implements DCCCommunicator {
                 break;
         }
         ret.append(packet.getAddress().getAddress());
+        ret.append(",");
+        ret.append(packet.getAddress().getAddressTypeAsInt());
         ret.append(",");
         ret.append(speedFromPacket(packet));
         ret.append(";");
@@ -161,16 +171,18 @@ public class HardwareCommunicator implements DCCCommunicator {
     }
 
     private String functionPacketToCommand(FunctionPacket packet) {
-        return "func," + packet.getAddress().getAddress() + "," + packet.getBitMask() + ";";
+        return "func," + packet.getAddress().getAddress() + "," + packet.getAddress().getAddressTypeAsInt() + "," + packet.getBitMask() + ";";
     }
 
     private String resetPacketToCommand(HardResetPacket packet) {
-        return "reset," + packet.getAddress().getAddress() + ";";
+        return "reset," + packet.getAddress().getAddress() + "," + packet.getAddress().getAddressTypeAsInt() + ";";
     }
 
     private String programCVPacketToCommand(CVProgramPacket packet) {
         StringBuilder ret = new StringBuilder("prog,");
         ret.append(packet.getAddress().getAddress());
+        ret.append(",");
+        ret.append(packet.getAddress().getAddressTypeAsInt());
         ret.append(",");
         ret.append(packet.getCvAddress());
         ret.append(",");
